@@ -13,10 +13,6 @@ async function createMusic(req, res) {
         }
 
         const decoded = jwt.verify(token, process.env.JWT_SECRET)
-        if (decoded.role !== "artist") {
-            return res.status(403).json({ message: "You Dont have Access" })
-
-        }
 
 
         // }catch(err){
@@ -60,91 +56,88 @@ async function createMusic(req, res) {
 }
 
 
-async function createAlbum(req,res) {
+async function createAlbum(req, res) {
     const token = req.cookies.token
 
-    if(!token){
-        return res.status(401).json({message : "Unauthorized"})
+    if (!token) {
+        return res.status(401).json({ message: "Unauthorized" })
 
     }
-    try{
-        const decoded = jwt.verify(token , process.env.JWT_SECRET)
-        if(decoded.role!='artist'){
-            return res.status(403).json({message : "You Dont have Access"})
-        }
-        const {title , musics} = req.body
+    try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET)
+        const { title, musics } = req.body
         const album = await albumModel.create({
             title,
-            artist : decoded.id ,
-            music : musics
+            artist: decoded.id,
+            music: musics
         })
         res.status(201).json({
-            message : "Album Created Successfully",
-            album : {
-                id : album._id,
-                title : album.title,
-                artist : album.artist,
-                music : album.musics
+            message: "Album Created Successfully",
+            album: {
+                id: album._id,
+                title: album.title,
+                artist: album.artist,
+                music: album.musics
             }
         })
 
-    }catch(err){
+    } catch (err) {
         console.log(err)
         res.status(500).json({
-            message : "Error creating album",
-            error : err.message
+            message: "Error creating album",
+            error: err.message
         })
     }
 
 }
 
 
-async function getAllSongs(req , res) {
-    try{
-        const songs = await musicModel.find().populate('artist' , 'username')
-        
+async function getAllSongs(req, res) {
+    try {
+        const songs = await musicModel.find().populate('artist', 'username')
+
         res.status(200).json({
-            message:"All Songs Fetched Successfully",
-            songs: songs ,
+            message: "All Songs Fetched Successfully",
+            songs: songs,
         })
-    }catch(err){
+    } catch (err) {
         console.log(err)
         res.status(500).json({
-            message : "Error fetching songs",
-            error : err.message
+            message: "Error fetching songs",
+            error: err.message
         })
     }
 }
 
-async function getAllAlbum(req , res) {
+async function getAllAlbum(req, res) {
 
-    const albums = await albumModel.find().populate('artist' , 'username')
+    const albums = await albumModel.find().populate('artist', 'username')
     res.status(200).json({
-        message : "All Albums Fetched Successfully",
-        albums : albums
+        message: "All Albums Fetched Successfully",
+        albums: albums
     })
-    
+
 }
 
-async function getAlbumById(req , res) {
-    const {id} = req.params
-    const album = await albumModel.findById(id).populate('artist' , 'username').populate('music' , '_id uri title artist')
+async function getAlbumById(req, res) {
+    const { id } = req.params
+    const album = await albumModel.findById(id).populate('artist', 'username').populate('music', '_id uri title artist')
     res.status(200).json({
-        message : "Album Fetched Successfully",
-        album : album
+        message: "Album Fetched Successfully",
+        album: album
     })
 }
-async function addSongPlaylist(req , res) {
-    const {id} = req.params
-    const {music} = req.body
+async function addSongPlaylist(req, res) {
+    const { id } = req.params
+    const { music } = req.body
     const album = await albumModel.findById(id)
     album.music.push(music)
     await album.save()
     res.status(200).json({
-        message : "Song Added Successfully",
-        album : album
+        message: "Song Added Successfully",
+        album: album
     })
-    
+
 }
 
-module.exports = { createMusic , createAlbum , getAllSongs , getAllAlbum , getAlbumById , addSongPlaylist}
+module.exports = { createMusic, createAlbum, getAllSongs, getAllAlbum, getAlbumById, addSongPlaylist }

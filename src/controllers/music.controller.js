@@ -7,7 +7,7 @@ const jwt = require('jsonwebtoken')
 async function createMusic(req, res) {
 
     try {
-        const token = req.cookies.token
+        const token = req.headers.authorization?.split(' ')[1] || req.cookies.token
         if (!token) {
             return res.status(401).json({ message: "Unauthorized" })
         }
@@ -57,7 +57,7 @@ async function createMusic(req, res) {
 
 
 async function createAlbum(req, res) {
-    const token = req.cookies.token
+    const token = req.headers.authorization?.split(' ')[1] || req.cookies.token
 
     if (!token) {
         return res.status(401).json({ message: "Unauthorized" })
